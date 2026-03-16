@@ -1,0 +1,26 @@
+{
+    "imap": {
+        "host": "imap.qq.com",
+        "port": 993,
+        "username": "YOUR_EMAIL",
+        "password": "YOUR_PASSWORD_OR_AUTH_CODE"
+    },
+    "smtp": {
+        "host": "smtp.qq.com",
+        "port": 465,
+        "username": "YOUR_EMAIL",
+        "password": "YOUR_PASSWORD_OR_AUTH_CODE"
+    },
+    "whitelist": [
+        "user1@example.com",
+        "user2@example.com"
+    ],
+    "superuser": "user1@example.com",
+    "check_interval": 30,
+    "reply_subject_prefix": "Re: ",
+    "claude_model": "sonnet",
+    "claude_timeout": 300,
+    "claude_command": "claude",
+    "claude_args": ["--print"],
+    "persona": "Your AI Assistant"
+}

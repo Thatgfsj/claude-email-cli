@@ -11,21 +11,30 @@
 ## 功能特性
 
 ### 安全特性
-- ✅ 发件人白名单校验
-- ✅ 邮件 UID 去重（防止重复处理）
+- ✅ 发件人白名单校验（小写精确匹配）
+- ✅ UID 持久化去重（文件存储）
 - ✅ 危险命令过滤
 - ✅ 敏感信息脱敏
-- ✅ 配置支持环境变量（不存储明文密码）
+- ✅ **强制环境变量配置**（不再支持明文配置文件）
 
-### 稳定性
-- ✅ IMAP/SMTP 异常自动重连
-- ✅ 结构化日志记录
-- ✅ 进程守护
+### 可靠性
+- ✅ IMAP/SMTP 异常自动重连（指数退避）
+- ✅ 邮件 UID 持久化去重
+- ✅ 按异常类型分级重试
+- ✅ 死信处理（连续失败不再重试）
+- ✅ 超大邮件自动截断
+
+### 性能
+- ✅ 单任务队列（防止 Claude CLI 并发阻塞）
+- ✅ 子进程超时强制终止
+- ✅ 回复内容长度限制
 
 ### 工程化
 - ✅ 模块化架构
-- ✅ 类型注解
-- ✅ Markdown 转纯文本
+- ✅ 全量类型注解
+- ✅ 结构化 JSON 日志（按大小轮转）
+- ✅ 常量统一管理
+- ✅ 配置自检脚本
 
 ## 快速开始
 
@@ -35,74 +44,92 @@
 pip install -r requirements.txt
 ```
 
-### 2. 配置
+### 2. 配置（环境变量方式）
 
-#### 方式一：交互式配置
+#### 方式一：创建 .env 文件（推荐）
 ```bash
-python init_setup.py
+copy .env.example .env
+notepad .env
 ```
 
-#### 方式二：环境变量（推荐）
-```bash
-export EMAIL_USER="your@email.com"
-export EMAIL_PWD="your_password"
-export IMAP_HOST="imap.qq.com"
-export SMTP_HOST="smtp.qq.com"
-export ALLOWED_SENDERS="friend@qq.com,admin@example.com"
+#### 方式二：直接设置环境变量
+```cmd
+set EMAIL_USER=your@email.com
+set EMAIL_PWD=your_auth_code
+set IMAP_HOST=imap.qq.com
+set SMTP_HOST=smtp.qq.com
+set ALLOWED_SENDERS=your@email.com
 ```
 
-#### 方式三：配置文件
-复制 `config.example.json` 为 `config.json` 并编辑。
+#### 方式三：检查配置
+```bash
+python -c "from core.config import check_config; check_config()"
+```
 
 ### 3. 启动
 
-#### CLI 模式（命令行）
 ```bash
+# CLI 模式
 python run.py
-```
 
-#### Web 模式（带管理界面）
-```bash
+# Web 模式
 python run_web.py
 ```
-然后访问 http://localhost:5000
 
 ## 项目结构
 
 ```
 claude-email-cli/
-├── main.py              # CLI 主程序
+├── main.py              # 主程序
 ├── run.py               # CLI 启动脚本
 ├── run_web.py           # Web 启动脚本
 ├── web_app.py           # Flask Web 应用
+├── deploy.py            # 部署脚本
+├── DEPLOY.md            # 部署文档
+├── .env.example         # 环境变量示例
 ├── core/
 │   ├── __init__.py
-│   └── config.py        # 配置加载
+│   ├── config.py        # 配置加载（强制环境变量）
+│   └── constants.py     # 常量定义
 ├── email/
 │   ├── __init__.py
-│   ├── imap.py         # IMAP 收件
+│   ├── imap.py         # IMAP 收件（可靠性强化）
 │   └── smtp.py         # SMTP 发件
 ├── claude/
 │   └── client.py       # Claude CLI 调用
 ├── utils/
 │   └── security.py     # 安全检查
 ├── logs/                # 日志目录
-├── config.example.json  # 配置示例
-└── requirements.txt     # Python 依赖
+└── data/                # 数据目录（UID存储）
 ```
 
-## 使用方法
+## 配置项说明
 
-1. 配置好邮箱和允许的发件人
-2. 启动服务
-3. 给你的邮箱发送邮件
-4. Claude 会处理邮件并回复你
+| 变量 | 必需 | 默认值 | 说明 |
+|------|------|--------|------|
+| EMAIL_USER | ✅ | - | 邮箱地址 |
+| EMAIL_PWD | ✅ | - | 邮箱授权码 |
+| IMAP_HOST | ✅ | - | IMAP 服务器 |
+| SMTP_HOST | ✅ | - | SMTP 服务器 |
+| IMAP_PORT | | 993 | IMAP 端口 |
+| SMTP_PORT | | 465 | SMTP 端口 |
+| ALLOWED_SENDERS | | - | 白名单邮箱（逗号分隔） |
+| POLL_INTERVAL | | 30 | 轮询间隔（秒） |
+| CLAUDE_TIMEOUT | | 300 | Claude 超时（秒） |
+| MAX_RETRIES | | 3 | 最大重试次数 |
+| CLAUDE_PATH | | claude | Claude CLI 路径 |
 
-## 安全建议
+## 安全警告
 
-1. **一定要配置发件人白名单** - 只允许信任的邮箱地址
-2. **使用环境变量** - 不要在配置文件中明文存储密码
-3. **限制 AI 权限** - 建议只允许对话，不执行 shell 命令
+⚠️ **不再支持 config.json 明文存储密码！**
+
+请使用环境变量或 .env 文件配置敏感信息。
+
+## 日志
+
+- 位置：`logs/email_ai.log`
+- 格式：JSON（结构化）
+- 轮转：10MB/文件，保留 5 个
 
 ## 许可证
 

@@ -103,42 +103,39 @@ def install_dependencies():
 def setup_config():
     """配置"""
     print("\n[5/6] 配置...")
-    
+
     project_dir = Path(__file__).parent
-    config_file = project_dir / "config.json"
-    example_file = project_dir / "config.example.json"
-    
-    if config_file.exists():
-        print("✓ 配置文件已存在")
+    env_file = project_dir / ".env"
+
+    if env_file.exists():
+        print("✓ .env 配置文件已存在")
         return True
-    
-    if example_file.exists():
-        print("请编辑 config.example.json 并保存为 config.json")
-        print(f"配置文件位置: {config_file}")
-        return True
-    
-    print("✗ 配置文件不存在")
+
+    print("未检测到 .env 配置文件。请在项目目录运行：")
+    print(f"  cd \"{project_dir}\"")
+    print("  python init_setup.py")
+    print("按向导提示填写邮箱、授权码和白名单后，再重新运行本脚本。")
     return False
 
 
 def start_service():
     """启动服务"""
     print("\n[6/6] 启动服务...")
-    
+
     project_dir = Path(__file__).parent
     run_file = project_dir / "run.py"
-    
+
     if not run_file.exists():
         print("✗ run.py 不存在")
         return False
-    
+
     print("\n" + "=" * 50)
     print("部署完成！")
     print("=" * 50)
-    print(f"配置文件: {project_dir / 'config.json'}")
-    print("启动命令: python run.py")
+    print(f"配置文件: {project_dir / '.env'}")
+    print("启动命令: python run.py  (或 python run_web.py 启动 Web 模式)")
     print("=" * 50)
-    
+
     return True
 
 
@@ -171,8 +168,8 @@ def main():
     start_service()
     
     print("\n下一步:")
-    print("1. 编辑 config.json 配置文件")
-    print("2. 运行 python run.py 启动服务")
+    print("1. 运行 python init_setup.py 生成 .env 配置")
+    print("2. 运行 python run.py 启动服务（或 python run_web.py 启动 Web 模式）")
 
 
 if __name__ == "__main__":

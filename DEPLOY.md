@@ -65,36 +65,28 @@ python init_setup.py
 - IMAP/SMTP 服务器地址
 - 发件人白名单
 
+配置将写入 `.env` 文件（已在 `.gitignore` 中忽略，不会提交到代码库）。
+
 ### 方式二：手动配置
 
-1. 复制配置示例：
+复制 `.env.example` 为 `.env` 并编辑：
 ```cmd
-copy config.example.json config.json
+copy .env.example .env
+notepad .env
 ```
 
-2. 编辑 `config.json`：
-```json
-{
-    "imap_host": "imap.qq.com",
-    "imap_port": 993,
-    "smtp_host": "smtp.qq.com",
-    "smtp_port": 465,
-    "email": "your@qq.com",
-    "password": "your_auth_code",
-    "allowed_senders": ["your@qq.com"],
-    "claude_path": "claude",
-    "poll_interval": 30,
-    "timeout": 300
-}
-```
-
-### 方式三：环境变量（最安全）
+### 方式三：直接设置环境变量（不使用 .env）
 ```cmd
 set EMAIL_USER=your@qq.com
 set EMAIL_PWD=your_auth_code
 set IMAP_HOST=imap.qq.com
 set SMTP_HOST=smtp.qq.com
 set ALLOWED_SENDERS=your@qq.com
+```
+
+配置完成后自检：
+```cmd
+python -c "from core.config import check_config; check_config()"
 ```
 
 ---
@@ -170,8 +162,8 @@ cd claude-email-cli
 # 3. 安装依赖
 pip install -r requirements.txt
 
-# 4. 配置（手动编辑 config.json）
-notepad config.json
+# 4. 配置（交互式生成 .env）
+python init_setup.py
 
 # 5. 启动
 python run.py

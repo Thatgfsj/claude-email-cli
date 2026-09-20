@@ -1,3 +1,5 @@
-# Claude Email CLI Dependencies
+# Claude Email CLI 依赖
+# CLI 模式无第三方依赖（仅标准库）
 
+# Web 管理面板（run_web.py / web_app.py 需要）
 flask>=2.0.0

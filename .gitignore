@@ -23,6 +23,10 @@ wheels/
 # Config (contains sensitive info)
 config.json
 .env
+
+# Runtime data
+logs/
+data/
 *.log
 
 # IDE
@@ -35,6 +39,3 @@ config.json
 # OS
 .DS_Store
 Thumbs.db
-
-# Works folder
-works/

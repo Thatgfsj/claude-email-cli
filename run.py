@@ -8,7 +8,6 @@ Email AI Assistant - 一键启动脚本 (CLI版)
 
 import os
 import sys
-import signal
 from pathlib import Path
 
 # 确保在项目目录运行
@@ -46,18 +45,10 @@ def main():
     
     # 启动服务
     from main import EmailAIAssistant
-    
+
     assistant = EmailAIAssistant(config)
-    
-    # 信号处理
-    def signal_handler(sig, frame):
-        print("\n正在退出...")
-        assistant.running = False
-        sys.exit(0)
-    
-    signal.signal(signal.SIGINT, signal_handler)
-    signal.signal(signal.SIGTERM, signal_handler)
-    
+
+    # Ctrl+C 优雅退出：assistant.start() 内部已注册信号处理并负责清理
     assistant.start()
 
 
